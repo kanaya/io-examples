@@ -16,9 +16,14 @@ read_and_write fp n = do
     printf "%03d: " (n::Int)
     print str
     read_and_write fp (n + 1)
-    
+
+process :: String -> IO ()
+process filename = openFile filename ReadMode >>= \fin -> read_and_write fin 0
+
+process_filenames :: [String] -> IO ()
+process_filenames (fn:fns) = process fn >> process_filenames fns
+process_filenames [] = return ()
+
 someFunc :: IO ()
-someFunc = do
-  args <- getArgs
-  fp <- openFile (args !! 0) ReadMode
-  read_and_write fp 0
+someFunc = getArgs >>= process_filenames
+
